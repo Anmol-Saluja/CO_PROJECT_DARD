@@ -9,6 +9,10 @@ class Assembler:
             "t5":"11110","t6":"11111","s1":"01001"}
         self.labels={}
 
+    def checkreg(self,reg):
+        if reg not in self.REGISTER_INST:
+            raise ValueError(f"Unsupported register: {reg}")
+        
     def inst_handle(self,inst,pc):
         inst=inst.strip()
         if ':' in inst:
@@ -28,6 +32,9 @@ class Assembler:
             funct7='0000000'
             funct3='000'
             opcode='0110011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
+            self.checkreg(parts[3])
             rd=self.REGISTER_INST[parts[1]]
             rs1=self.REGISTER_INST[parts[2]]
             rs2=self.REGISTER_INST[parts[3]]
@@ -37,12 +44,15 @@ class Assembler:
             funct7='0100000'
             funct3='000'
             opcode='0110011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
+            self.checkreg(parts[3])
             rd=self.REGISTER_INST[parts[1]]
             rs1=self.REGISTER_INST[parts[2]]
             rs2=self.REGISTER_INST[parts[3]]
             return f"{funct7}{rs2}{rs1}{funct3}{rd}{opcode}"
 
-        elif cmd=='slt':
+        elif cmd=='slt':      
             pass
 
         elif cmd=='srl':
