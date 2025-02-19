@@ -100,6 +100,8 @@ class Assembler:
         elif cmd=='sw':
             funct3='010'
             opcode='0100011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[3])
             rs2=self.REGISTER_INST[parts[1]]
             rs1=self.REGISTER_INST[parts[3]]
             imm=int(parts[2])
@@ -108,7 +110,9 @@ class Assembler:
 
 
         elif cmd in ['beq', 'bne']:
-             opcode='1100011'
+            opcode='1100011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
             rs1=self.REGISTER_INST[parts[1]]
             rs2=self.REGISTER_INST[parts[2]]
             offset=parts[3]
@@ -129,6 +133,7 @@ class Assembler:
 
         elif cmd=='jal':
             opcode='1101111'
+            self.checkreg(parts[1])
             rd=self.REGISTER_INST[parts[1]]
             offset=parts[2]
             if offset in self.labels:
@@ -141,7 +146,8 @@ class Assembler:
             imm_11=(imm>>11)&0x1
             imm_19_12=(imm>>12)&0xFF
             return f"{imm_20:01b}{imm_10_1:010b}{imm_11:01b}{imm_19_12:08b}{rd}{opcode}"
-
+        else:
+            raise ValueError(f"Unsupported instruction: {cmd}")
 
     def result(self,inst):
         bin_output=[]
