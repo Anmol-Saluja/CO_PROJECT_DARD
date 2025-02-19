@@ -31,7 +31,6 @@ The assembler currently supports the following RISC-V instructions:
 | Branching    | `beq`, `bne`      |
 | Jump         | `jal`, `jalr`     |
 
-Future updates will expand support for more instructions and optimizations.
 
 ## Team Members
 | Name            | Roll No  | GitHub Username  | Contributions |
@@ -41,7 +40,6 @@ Future updates will expand support for more instructions and optimizations.
 | Divij Yadav    | 2024199 | wolf-havoc      |               |
 | Rishit Sansanwal | 2024468 | Rishit468       |               |
 
-(*The contributions column will be updated as work progresses.*)
 
 ## Usage
 1. Clone the repository.
