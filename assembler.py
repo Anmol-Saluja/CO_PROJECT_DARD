@@ -98,13 +98,50 @@ class Assembler:
             return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
 
         elif cmd=='sw':
-            pass
+            funct3='010'
+            opcode='0100011'
+            rs2=self.REGISTER_INST[parts[1]]
+            rs1=self.REGISTER_INST[parts[3]]
+            imm=int(parts[2])
+            imm_bin=format(imm&0xFFF,'012b')
+            return f"{imm_bin[0:7]}{rs2}{rs1}{funct3}{imm_bin[7:12]}{opcode}"
+
 
         elif cmd in ['beq', 'bne']:
-            pass
+             opcode='1100011'
+            rs1=self.REGISTER_INST[parts[1]]
+            rs2=self.REGISTER_INST[parts[2]]
+            offset=parts[3]
+            if offset in self.labels:
+                val=(self.labels[offset]-pc)
+            else:
+                val=int(offset)
+            imm=val
+            imm_12=(imm>>12)&0x1
+            imm_11=(imm>>11)&0x1
+            imm_10_5=(imm>>5)&0x3F
+            imm_4_1=(imm>>1)&0xF
+            if cmd=='beq':
+                funct3='000'
+            else:
+                funct3='001'
+            return f"{imm_12:01b}{imm_10_5:06b}{rs2}{rs1}{funct3}{imm_4_1:04b}{imm_11:01b}{opcode}" 
 
         elif cmd=='jal':
-            pass
+            opcode='1101111'
+            rd=self.REGISTER_INST[parts[1]]
+            offset=parts[2]
+            if offset in self.labels:
+                val=(self.labels[offset]-pc)
+            else:
+                val=int(offset)
+            imm=val
+            imm_20=(imm>>20)&0x1
+            imm_10_1=(imm>>1)&0x3FF
+            imm_11=(imm>>11)&0x1
+            imm_19_12=(imm>>12)&0xFF
+            return f"{imm_20:01b}{imm_10_1:010b}{imm_11:01b}{imm_19_12:08b}{rd}{opcode}"
+
 
     def result(self,inst):
         bin_output=[]
@@ -136,6 +173,12 @@ class Assembler:
         return bin_output
 
 def main():
-   pass
-
+    assembler = Assembler()
+    with open("Ex_test_9.txt","r") as f:
+        inst = f.readlines()
+    bin_output = assembler.result(inst)
+    with open("output.txt","w") as f:
+        for code in bin_output:
+            f.write(f"{code}\n")
+            print(code)
 main()
