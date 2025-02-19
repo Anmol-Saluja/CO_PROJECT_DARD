@@ -62,16 +62,40 @@ class Assembler:
             pass
 
         elif cmd=='and':
-            pass
-
+            funct7='0000000'
+            funct3='111'
+            opcode='0110011'
+            rd=self.REGISTER_INST[parts[1]]
+            rs1=self.REGISTER_INST[parts[2]]
+            rs2=self.REGISTER_INST[parts[3]]
+            return f"{funct7}{rs2}{rs1}{funct3}{rd}{opcode}"
+            
         elif cmd=='addi':
-            pass
+            opcode='0010011'
+            funct3='000'
+            rd=self.REGISTER_INST[parts[1]]
+            rs1=self.REGISTER_INST[parts[2]]
+            imm=int(parts[3])
+            imm_bin=format(imm&0xFFF,'012b')
+            return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
 
         elif cmd=='lw':
-            pass
+            funct3='010'
+            opcode='0000011'
+            rd=self.REGISTER_INST[parts[1]]
+            rs1=self.REGISTER_INST[parts[3]]
+            imm=int(parts[2])
+            imm_bin=format(imm&0xFFF,'012b')
+            return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
 
         elif cmd=='jalr':
-            pass
+            funct3='000'
+            opcode='1100111'
+            rd=self.REGISTER_INST[parts[1]]
+            rs1=self.REGISTER_INST[parts[2]]
+            imm=int(parts[3])
+            imm_bin=format(imm&0xFFF,'012b')
+            return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
 
         elif cmd=='sw':
             pass
