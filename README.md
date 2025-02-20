@@ -33,12 +33,12 @@ The assembler currently supports the following RISC-V instructions:
 
 
 ## Team Members
-| Name            | Roll No  | GitHub Username  | Contributions |
-|----------------|---------|-----------------|---------------|
-| Anmol Saluja   | 2024085 | Anmol-Saluja    |               |
-| Disha Kukkal   | 2024197 | CreativeMuch    |               |
-| Divij Yadav    | 2024199 | wolf-havoc      |               |
-| Rishit Sansanwal | 2024468 | Rishit468       |               |
+| Name            | Roll No  | GitHub Username  | 
+|----------------|---------|-----------------|
+| Anmol Saluja   | 2024085 | Anmol-Saluja    |               
+| Disha Kukkal   | 2024197 | CreativeMuch    |               
+| Divij Yadav    | 2024199 | wolf-havoc      |              
+| Rishit Sansanwal | 2024468 | Rishit468       |       
 
 
 ## Usage
