@@ -46,11 +46,11 @@ The assembler currently supports the following RISC-V instructions:
 2. Run the assembler script with a set of RISC-V assembly instructions.
 3. The output will be the binary representation of the given instructions.
 
-## Future Improvements
+## Future Improvements(Now Done)
 - Expand instruction set coverage.
 - Implement error handling for invalid instructions.
 - Optimize label resolution and memory management.
-- Add a user-friendly interface or command-line tool for ease of use.
+
 
 ## License
 This project is open-source and available for educational and research purposes.
