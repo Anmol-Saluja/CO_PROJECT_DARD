@@ -1,5 +1,5 @@
 # RISC-V 32-bit Assembler
-## CO_PROJECT For CSE_112_2025 Course IIIT-D
+## CO_PROJECT For CSE_112_2025 Course @ IIIT-D
 
 ## Introduction
 This project is a RISC-V 32-bit assembler implemented in Python using Object-Oriented Programming (OOP) principles. The assembler takes RISC-V assembly instructions as input and converts them into machine code (binary representation). It supports a subset of RISC-V instructions, handling registers, labels, and immediate values effectively.
