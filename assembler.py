@@ -16,9 +16,9 @@ class Assembler:
     def inst_handle(self,inst,pc):
         inst=inst.strip()
         if ':' in inst:
-            label,instr = inst.split(':')
+            label,instr=inst.split(':')
             self.labels[label.strip()]=pc
-            inst = instr.strip()
+            inst=instr.strip()
         if not inst:
             return None
         
@@ -27,7 +27,7 @@ class Assembler:
         parts=inst.split(' ')
         parts=[p for p in parts if p]
         cmd=parts[0]
-
+        Flag=0
         if cmd=='add':
             funct7='0000000'
             funct3='000'
@@ -52,50 +52,98 @@ class Assembler:
             rs2=self.REGISTER_INST[parts[3]]
             return f"{funct7}{rs2}{rs1}{funct3}{rd}{opcode}"
 
-        elif cmd=='slt':      
-            pass
+        elif cmd=='slt':
+            funct7='0000000'
+            funct3='010'
+            opcode='0110011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
+            self.checkreg(parts[3])
+            rd=self.REGISTER_INST[parts[1]]
+            rs1=self.REGISTER_INST[parts[2]]
+            rs2=self.REGISTER_INST[parts[3]]
+            return f"{funct7}{rs2}{rs1}{funct3}{rd}{opcode}"
 
         elif cmd=='srl':
-            pass
+            funct7='0000000'
+            funct3='101'
+            opcode='0110011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
+            self.checkreg(parts[3])
+            rd=self.REGISTER_INST[parts[1]]
+            rs1=self.REGISTER_INST[parts[2]]
+            rs2=self.REGISTER_INST[parts[3]]
+            return f"{funct7}{rs2}{rs1}{funct3}{rd}{opcode}"
 
         elif cmd=='or':
-            pass
+            funct7='0000000'
+            funct3='110'
+            opcode='0110011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
+            self.checkreg(parts[3])
+            rd=self.REGISTER_INST[parts[1]]
+            rs1=self.REGISTER_INST[parts[2]]
+            rs2=self.REGISTER_INST[parts[3]]
+            return f"{funct7}{rs2}{rs1}{funct3}{rd}{opcode}"
 
         elif cmd=='and':
             funct7='0000000'
             funct3='111'
             opcode='0110011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
+            self.checkreg(parts[3])
             rd=self.REGISTER_INST[parts[1]]
             rs1=self.REGISTER_INST[parts[2]]
             rs2=self.REGISTER_INST[parts[3]]
             return f"{funct7}{rs2}{rs1}{funct3}{rd}{opcode}"
-            
+
         elif cmd=='addi':
             opcode='0010011'
             funct3='000'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
             rd=self.REGISTER_INST[parts[1]]
             rs1=self.REGISTER_INST[parts[2]]
             imm=int(parts[3])
-            imm_bin=format(imm&0xFFF,'012b')
-            return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
+            if -2048<=imm and imm<=2047:
+                imm_bin=format(imm&0xFFF,'012b')
+                return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
+                
+            else:
+                raise ValueError(f"Immediate value out of range: {imm}")
 
         elif cmd=='lw':
             funct3='010'
             opcode='0000011'
+            self.checkreg(parts[1])
+            self.checkreg(parts[3])
             rd=self.REGISTER_INST[parts[1]]
             rs1=self.REGISTER_INST[parts[3]]
             imm=int(parts[2])
-            imm_bin=format(imm&0xFFF,'012b')
-            return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
+            if -2048<=imm and imm<=2047:
+                imm_bin=format(imm&0xFFF,'012b')
+                return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
+                
+            else:
+                raise ValueError(f"Immediate value out of range: {imm}")
 
         elif cmd=='jalr':
             funct3='000'
             opcode='1100111'
+            self.checkreg(parts[1])
+            self.checkreg(parts[2])
             rd=self.REGISTER_INST[parts[1]]
             rs1=self.REGISTER_INST[parts[2]]
             imm=int(parts[3])
-            imm_bin=format(imm&0xFFF,'012b')
-            return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
+            if -2048<=imm and imm<=2047:
+                imm_bin=format(imm&0xFFF,'012b')
+                return f"{imm_bin}{rs1}{funct3}{rd}{opcode}"
+                
+            else:
+                raise ValueError(f"Immediate value out of range: {imm}")
 
         elif cmd=='sw':
             funct3='010'
@@ -105,11 +153,13 @@ class Assembler:
             rs2=self.REGISTER_INST[parts[1]]
             rs1=self.REGISTER_INST[parts[3]]
             imm=int(parts[2])
-            imm_bin=format(imm&0xFFF,'012b')
-            return f"{imm_bin[0:7]}{rs2}{rs1}{funct3}{imm_bin[7:12]}{opcode}"
+            if -2048<=imm and imm<=2047:
+                imm_bin=format(imm&0xFFF,'012b')
+                return f"{imm_bin[0:7]}{rs2}{rs1}{funct3}{imm_bin[7:12]}{opcode}"
+            else:
+                raise ValueError(f"Immediate value out of range: {imm}")
 
-
-        elif cmd in ['beq', 'bne']:
+        elif cmd in ['beq','bne']:
             opcode='1100011'
             self.checkreg(parts[1])
             self.checkreg(parts[2])
@@ -118,34 +168,43 @@ class Assembler:
             offset=parts[3]
             if offset in self.labels:
                 val=(self.labels[offset]-pc)
+                print(offset,val)
             else:
                 val=int(offset)
             imm=val
-            imm_12=(imm>>12)&0x1
-            imm_11=(imm>>11)&0x1
-            imm_10_5=(imm>>5)&0x3F
-            imm_4_1=(imm>>1)&0xF
-            if cmd=='beq':
-                funct3='000'
+            if -2048<=imm and imm<=2047:
+                imm_12=(imm>>12)&0x1
+                imm_11=(imm>>11)&0x1
+                imm_10_5=(imm>>5)&0x3F
+                imm_4_1=(imm>>1)&0xF
+                if cmd=='beq':
+                    funct3='000'
+                else:
+                    funct3='001'
+                return f"{imm_12:01b}{imm_10_5:06b}{rs2}{rs1}{funct3}{imm_4_1:04b}{imm_11:01b}{opcode}" 
+                
             else:
-                funct3='001'
-            return f"{imm_12:01b}{imm_10_5:06b}{rs2}{rs1}{funct3}{imm_4_1:04b}{imm_11:01b}{opcode}" 
+                raise ValueError(f"Immediate value out of range: {imm}")
 
         elif cmd=='jal':
             opcode='1101111'
-            self.checkreg(parts[1])
             rd=self.REGISTER_INST[parts[1]]
+            self.checkreg(parts[1])
             offset=parts[2]
             if offset in self.labels:
                 val=(self.labels[offset]-pc)
             else:
                 val=int(offset)
             imm=val
-            imm_20=(imm>>20)&0x1
-            imm_10_1=(imm>>1)&0x3FF
-            imm_11=(imm>>11)&0x1
-            imm_19_12=(imm>>12)&0xFF
-            return f"{imm_20:01b}{imm_10_1:010b}{imm_11:01b}{imm_19_12:08b}{rd}{opcode}"
+            if -524288<=imm and imm<=524287:
+                imm_20=(imm>>20)&0x1
+                imm_10_1=(imm>>1)&0x3FF
+                imm_11=(imm>>11)&0x1
+                imm_19_12=(imm>>12)&0xFF
+                return f"{imm_20:01b}{imm_10_1:010b}{imm_11:01b}{imm_19_12:08b}{rd}{opcode}"
+                
+            else:
+                raise ValueError(f"Immediate value out of range: {imm}")
         else:
             raise ValueError(f"Unsupported instruction: {cmd}")
 
@@ -180,11 +239,16 @@ class Assembler:
 
 def main():
     assembler = Assembler()
-    with open("Ex_test_9.txt","r") as f:
+    with open("input.txt","r") as f:
         inst = f.readlines()
+    if inst[-1] == '\n':
+        inst.remove('\n')
+    # if inst[-1] != "beq zero,zero,0":
+    #     raise ValueError("Last instruction should be virtual halt")
     bin_output = assembler.result(inst)
     with open("output.txt","w") as f:
         for code in bin_output:
             f.write(f"{code}\n")
             print(code)
+
 main()
