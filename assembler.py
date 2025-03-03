@@ -1,3 +1,5 @@
+import sys
+
 class Assembler:
     def __init__(self):
         self.REGISTER_INST = {"zero":"00000","ra":"00001","sp":"00010","gp":"00011","tp":"00100",
@@ -168,7 +170,6 @@ class Assembler:
             offset=parts[3]
             if offset in self.labels:
                 val=(self.labels[offset]-pc)
-                print(offset,val)
             else:
                 val=int(offset)
             imm=val
@@ -238,17 +239,29 @@ class Assembler:
         return bin_output
 
 def main():
+    if len(sys.argv) < 3:
+        sys.exit(1)
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
     assembler = Assembler()
-    with open("input.txt","r") as f:
-        inst = f.readlines()
-    if inst[-1] == '\n':
-        inst.remove('\n')
-    # if inst[-1] != "beq zero,zero,0":
-    #     raise ValueError("Last instruction should be virtual halt")
-    bin_output = assembler.result(inst)
-    with open("output.txt","w") as f:
-        for code in bin_output:
-            f.write(f"{code}\n")
-            print(code)
-
-main()
+    try:
+        with open(input_file, "r") as f:
+            inst = f.readlines()
+        if inst and inst[-1] == '\n':
+            inst.pop()
+        bin_output = assembler.result(inst)
+        with open(output_file, "w") as f:
+            for code in bin_output:
+                if code:
+                    f.write(f"{code}\n")
+    except FileNotFoundError:
+        print(f"Error: File '{input_file}' not found")
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        sys.exit(1)
+if __name__ == "__main__":
+    main()
