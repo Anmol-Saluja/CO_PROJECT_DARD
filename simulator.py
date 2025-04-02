@@ -36,6 +36,40 @@ memory_values = {
     "0x10078": 0,
     "0x1007C": 0
 }
+def addi(rs1,rd,imm):
+    global PC
+    rs1=int(rs1,2)
+    rd=int(rd,2)
+    imm_dec=int(imm,2)
+
+    if imm[0]=="1":
+        imm_dec-=4096
+    registers[f"x{rd}"]=registers[f"x{rs1}"]+imm_dec
+
+def lw(rs1, rd, imm):
+    global PC
+    rs1 = int(rs1, 2)
+    rd = int(rd, 2)
+    imm_dec = int(imm, 2)
+
+    if imm[0] == "1":
+        imm_dec -= 4096
+
+    address = registers[f"x{rs1}"] + imm_dec
+    registers[f"x{rd}"] = memory_values.get(hex(address), 0)
+
+def jalr(rs1, rd, imm):
+    global PC
+    rs1 = int(rs1, 2)
+    rd = int(rd, 2)
+    imm_dec = int(imm, 2)
+    if imm[0] == "1":
+        imm_dec -= 4096
+    target_address = (registers[f"x{rs1}"] + imm_dec)
+    if rd != 0:
+        registers[f"x{rd}"] = PC  
+    PC = target_address
+    
 def execute(instruction_dict):
     global PC
     L1 = []
@@ -67,7 +101,43 @@ def execute(instruction_dict):
             jalr(rs1, rd, imm)
         elif opcode == "0100011":
             sw(funct3, rs1, rs2, imm31_25, imm11_7)
+        if PC == -1:
+            reg_state1 = ""
+            reg_state2 = ""
+            reg_state1 += f"{PC-4}"
+            reg_state2 += f"0b{convert(PC-4)}"
+            for i in range(32):
+                reg_state1 += f" {registers[f'x{i}']}"
+                reg_state2 += f" 0b{convert(registers[f'x{i}'])}"
+            break
+        else:
+            reg_state1 = ""
+            reg_state2 = ""
+            reg_state1 += f"{PC}"
+            reg_state2 += f"0b{convert(PC)}"
+            for i in range(32):
+                reg_state1 += f" {registers[f'x{i}']}"
+                reg_state2 += f" 0b{convert(registers[f'x{i}'])}"
+        L1.append(reg_state1)
+        L2.append(reg_state2)
+        PC += 4  
+    return L1, L2
+
 def main():
+    if len(sys.argv) < 2:
+        sys.exit(1)
+    input_file = sys.argv[1]
+    output_file1 = sys.argv[2] if len(sys.argv) > 2 else "out1.txt"
+    output_file2 = sys.argv[3] if len(sys.argv) > 3 else "out2.txt"
+    try:
+        with open(input_file, "r") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        print(f"Error: Input file '{input_file}' not found")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error reading input file: {str(e)}")
+        sys.exit(1)
     instruction_dict = {}
     addr=4
     for line in lines:
