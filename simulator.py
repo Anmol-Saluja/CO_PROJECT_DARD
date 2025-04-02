@@ -1,1 +1,76 @@
+import sys
+registers = {f"x{i}": 0 for i in range(32)}
+registers["x2"] = 380
+PC = 4
+memory_values = {
+    "0x10000": 0,
+    "0x10004": 0,
+    "0x10008": 0,
+    "0x1000C": 0,
+    "0x10010": 0,
+    "0x10014": 0,
+    "0x10018": 0,
+    "0x1001C": 0,
+    "0x10020": 0,
+    "0x10024": 0,
+    "0x10028": 0,
+    "0x1002C": 0,
+    "0x10030": 0,
+    "0x10034": 0,
+    "0x10038": 0,
+    "0x1003C": 0,
+    "0x10040": 0,
+    "0x10044": 0,
+    "0x10048": 0,
+    "0x1004C": 0,
+    "0x10050": 0,
+    "0x10054": 0,
+    "0x10058": 0,
+    "0x1005C": 0,
+    "0x10060": 0,
+    "0x10064": 0,
+    "0x10068": 0,
+    "0x1006c": 0,
+    "0x10070": 0,
+    "0x10074": 0,
+    "0x10078": 0,
+    "0x1007C": 0
+}
+def execute(instruction_dict):
+    global PC
+    L1 = []
+    L2 = []
+    while PC in instruction_dict:
+        bits = instruction_dict[PC]
+        opcode = bits[-7:] 
+        rd = bits[20:25]
+        funct3 = bits[17:20]
+        rs1 = bits[12:17]
+        rs2 = bits[7:12]
+        funct7 = bits[0:7]
+        imm31_25 = bits[0:7]
+        imm11_7 = bits[20:25]
+        imm31_12 = bits[0:20]
+        imm = bits[0:12]
 
+        if opcode == "0010011":  
+            addi(rs1, rd, imm)
+        elif opcode == "0000011":  
+            lw(rs1, rd, imm)
+        elif opcode == "0110011":  
+            rtype(funct7, funct3, rs1, rs2, rd)
+        elif opcode == "1100011":  
+            btype(funct3, rs1, rs2, imm31_25, imm11_7)
+        elif opcode == "1101111":  
+            jtype(opcode, rd, imm31_12)
+        elif opcode == "1100111":
+            jalr(rs1, rd, imm)
+        elif opcode == "0100011":
+            sw(funct3, rs1, rs2, imm31_25, imm11_7)
+def main():
+    instruction_dict = {}
+    addr=4
+    for line in lines:
+        instruction_dict[addr]=line.strip()
+        addr += 4
+    L1, L2 = execute(instruction_dict)
