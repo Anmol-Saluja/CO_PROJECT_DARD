@@ -104,6 +104,49 @@ def jalr(rs1, rd, imm):
     if rd != 0:
         registers[f"x{rd}"] = PC  
     PC = target_address
+
+def btype(funct3, rs1, rs2, imm31_25, imm11_7):
+    global PC
+    if rs1 == "00000" and rs2 == "00000" and funct3 == "000" and imm31_25 == "0000000" and imm11_7 == "00000":
+        PC = -1
+        return
+    imm_12 = imm31_25[0]
+    imm_11 = imm11_7[-1]
+    imm_10_5 = imm31_25[1:]
+    imm_4_1 = imm11_7[:4]
+    
+    imm_binary = imm_12 + imm_11 + imm_10_5 + imm_4_1 + "0"
+    imm = int(imm_binary, 2)
+    if imm_binary[0] == "1":
+        imm -= (8192)
+    
+    rs1_val = int(rs1, 2)
+    rs2_val = int(rs2, 2)
+    branch_taken = False
+    if funct3 == "000":
+        branch_taken = (registers[f"x{rs1_val}"] == registers[f"x{rs2_val}"])
+    elif funct3 == "001":
+        branch_taken = (registers[f"x{rs1_val}"] != registers[f"x{rs2_val}"])
+    elif funct3 == "100":
+        branch_taken = (registers[f"x{rs1_val}"] < registers[f"x{rs2_val}"])
+    if branch_taken:
+        PC += imm - 4 
+
+def jtype(opcode, rd, imm31_12):
+    global PC
+    imm_20 = imm31_12[0]       
+    imm_10_1 = imm31_12[1:11]  
+    imm_11 = imm31_12[11]     
+    imm_19_12 = imm31_12[12:20]  
+
+    imm_binary = imm_20 + imm_19_12 + imm_11 + imm_10_1 + "0"
+    imm = int(imm_binary, 2)
+    if imm_binary[0] == "1":
+        imm -= 2097152  #
+
+    registers[f"x{int(rd, 2)}"] = PC  
+    PC += imm  
+    PC -= 4  
     
 def execute(instruction_dict):
     global PC
