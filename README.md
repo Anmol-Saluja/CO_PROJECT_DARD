@@ -68,7 +68,7 @@ The assembler and simulator support the following RISC-V instructions:
 ```
 3. **Run the simulator**
 ```bash
-    python simulator.py output.bin out1.txt out2.txt
+    python3 simulator.py output.bin out1.txt out2.txt
 ```
 4. **Output**:
    - `out1.txt`: Contains register values after execution.
