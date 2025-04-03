@@ -144,6 +144,19 @@ def jtype(opcode, rd, imm31_12):
     registers[f"x{int(rd, 2)}"] = PC  
     PC += imm  
     PC -= 4  
+def sw(funct3, rs1, rs2, imm31_25, imm11_7):
+    global PC
+    imm = imm31_25 + imm11_7
+    rs1 = int(rs1, 2)
+    rs2 = int(rs2, 2)
+    imm_dec = int(imm, 2)
+    if imm[0] == 1:
+        imm_dec -= 4096
+    address = registers[f"x{rs1}"] + imm_dec
+    if hex(address) in memory_values:
+        memory_values[hex(address)] = registers[f"x{rs2}"]
+    else:
+        memory_values[hex(address)] = registers[f"x{rs2}"]
     
 def execute(instruction_dict):
     global PC
