@@ -236,17 +236,17 @@ def main():
         addr += 4
     L1, L2 = execute(instruction_dict)
     try:
-        with open(output_file1, "w") as f1:
-            for i in L1:
-                f1.write(i)
-                f1.write("\n")
-            f1.write(L1[-1])
-            f1.write("\n")
-            for i in memory_values:
-                f1.write(f"{i[0:2]}000{i[2::]}:{memory_values[i]}")
-                f1.write("\n")
-                if i=="0x1007C":
-                    break
+        # with open(output_file1, "w") as f1:
+        #     for i in L1:
+        #         f1.write(i)
+        #         f1.write("\n")
+        #     f1.write(L1[-1])
+        #     f1.write("\n")
+        #     for i in memory_values:
+        #         f1.write(f"{i[0:2]}000{i[2::]}:{memory_values[i]}")
+        #         f1.write("\n")
+        #         if i=="0x1007C":
+        #             break
         
         with open(output_file2, "w") as f2:
             for i in L2:
