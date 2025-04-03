@@ -36,6 +36,17 @@ memory_values = {
     "0x10078": 0,
     "0x1007C": 0
 }
+def unsigned(val,bits=32):
+    binary = val&((1<<bits)-1)
+    return binary
+    
+def convert(n,bits=32):
+    if n<0:
+        n=(1<<bits)+n
+    else:
+        n=n&((1<<bits)-1)
+    return format(n,f'0{bits}b')
+
 def addi(rs1,rd,imm):
     global PC
     rs1=int(rs1,2)
@@ -58,6 +69,30 @@ def lw(rs1, rd, imm):
     address = registers[f"x{rs1}"] + imm_dec
     registers[f"x{rd}"] = memory_values.get(hex(address), 0)
 
+def rtype(funct7, funct3, rs1, rs2, rd):
+    global PC
+    rs1 = int(rs1, 2)
+    rd = int(rd, 2)
+    rs2 = int(rs2, 2)
+    if funct3 == "000":
+        if funct7 == "0000000":
+            registers[f"x{rd}"] = registers[f"x{rs1}"] + registers[f"x{rs2}"]
+        elif funct7 == "0100000":
+            registers[f"x{rd}"] = registers[f"x{rs1}"] - registers[f"x{rs2}"]
+            if(registers[f"x{rd}"] < 0):
+                registers[f"x{rd}"] = registers[f"x{rs1}"] + unsigned(-registers[f"x{rs2}"])
+    elif funct3 == "010":
+        if registers[f"x{rs1}"] < registers[f"x{rs2}"]:
+            registers[f"x{rd}"] = 1
+        else:
+            registers[f"x{rd}"] = 0
+    elif funct3 == "101":
+        registers[f"x{rd}"] = registers[f"x{rs1}"] >> (registers[f"x{rs2}"] & 0x1F)
+    elif funct3 == "110":
+        registers[f"x{rd}"] = registers[f"x{rs1}"] | registers[f"x{rs2}"]
+    elif funct3 == "111":
+        registers[f"x{rd}"] = registers[f"x{rs1}"] & registers[f"x{rs2}"]
+        
 def jalr(rs1, rd, imm):
     global PC
     rs1 = int(rs1, 2)
@@ -144,3 +179,33 @@ def main():
         instruction_dict[addr]=line.strip()
         addr += 4
     L1, L2 = execute(instruction_dict)
+    try:
+        with open(output_file1, "w") as f1:
+            for i in L1:
+                f1.write(i)
+                f1.write("\n")
+            f1.write(L1[-1])
+            f1.write("\n")
+            for i in memory_values:
+                f1.write(f"{i[0:2]}000{i[2::]}:{memory_values[i]}")
+                f1.write("\n")
+                if i=="0x1007C":
+                    break
+        
+        with open(output_file2, "w") as f2:
+            for i in L2:
+                f2.write(i)
+                f2.write("\n")
+            f2.write(L2[-1])
+            f2.write("\n")
+            for i in memory_values:
+                f2.write(f"{i[0:2]}000{i[2::]}:0b{convert(memory_values[i])}")
+                f2.write("\n")
+                if i=="0x1007C":
+                    break
+            
+        print(f"Successfully wrote output to '{output_file1}' and '{output_file2}'")
+    except Exception as e:
+        print(f"Error writing output files: {str(e)}")
+        sys.exit(1)
+main()
