@@ -192,13 +192,23 @@ def execute(instruction_dict):
             jalr(rs1, rd, imm)
         elif opcode == "0100011":
             sw(funct3, rs1, rs2, imm31_25, imm11_7)
-        reg_state1 = ""
-        reg_state2 = ""
-        reg_state1 += f"{PC}"
-        reg_state2 += f"0b{convert(PC)}"
-        for i in range(32):
-            reg_state1 += f" {registers[f'x{i}']}"
-            reg_state2 += f" 0b{convert(registers[f'x{i}'])}"
+        if PC == -1:
+            reg_state1 = ""
+            reg_state2 = ""
+            reg_state1 += f"{PC-4}"
+            reg_state2 += f"0b{convert(PC-4)}"
+            for i in range(32):
+                reg_state1 += f" {registers[f'x{i}']}"
+                reg_state2 += f" 0b{convert(registers[f'x{i}'])}"
+            break
+        else:
+            reg_state1 = ""
+            reg_state2 = ""
+            reg_state1 += f"{PC}"
+            reg_state2 += f"0b{convert(PC)}"
+            for i in range(32):
+                reg_state1 += f" {registers[f'x{i}']}"
+                reg_state2 += f" 0b{convert(registers[f'x{i}'])}"
         L1.append(reg_state1)
         L2.append(reg_state2)
         PC += 4  
