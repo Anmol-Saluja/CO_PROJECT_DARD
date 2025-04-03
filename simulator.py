@@ -107,6 +107,9 @@ def jalr(rs1, rd, imm):
 
 def btype(funct3, rs1, rs2, imm31_25, imm11_7):
     global PC
+    if rs1 == "00000" and rs2 == "00000" and funct3 == "000" and imm31_25 == "0000000" and imm11_7 == "00000":
+        PC = -1
+        return
     imm_12 = imm31_25[0]
     imm_11 = imm11_7[-1]
     imm_10_5 = imm31_25[1:]
